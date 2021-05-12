@@ -9,8 +9,11 @@ public class Beatmap
     public string beatmapName;
     public string beatmapAudioFile;
     public int tempo;
+    public int difficultyIndex;
     public List<string> beatmapNotes = new List<string>();
     public List<string> beatmapLasers = new List<string>();
+    public List<string> beatmapAttribution = new List<string>();
+    public string beatmapDescription;
 }
 
 public class PatternManager : MonoBehaviour
@@ -37,6 +40,8 @@ public class PatternManager : MonoBehaviour
     public Beatmap m_CurrentBeatmap;
     public bool m_PatternLoaded = false;
     private float m_CurrentTime = 0f;
+
+    public Dictionary<string, Beatmap> beatmapObjectCollection = new Dictionary<string, Beatmap>();
 
     // A place to store every characteristic of our notes.
     public List<string> m_NoteSpawnAreas = new List<string>();
@@ -179,6 +184,24 @@ public class PatternManager : MonoBehaviour
                     // Line 5 has to be the laser definitions.
                     m_CurrentBeatmap.beatmapLasers.AddRange(m_BeatmapContents[i].Replace(" ", "").Split(','));
                     break;
+                case 6:
+                    // Line 6 has to be attributions, separated by semicolons
+                    m_CurrentBeatmap.beatmapAttribution.AddRange(m_BeatmapContents[i].Split(';'));
+                    break;
+                case 7:
+                    int difficultyIndex;
+                    bool didParseCorrectly = int.TryParse(m_BeatmapContents[i], out difficultyIndex);
+                    if (didParseCorrectly && difficultyIndex <= 3 && difficultyIndex >= -1) {
+                        m_CurrentBeatmap.difficultyIndex = difficultyIndex;
+                    } else {
+                        // If we couldn't parse the thing, then just assign it to -1. We'll deal with it later.
+                        m_CurrentBeatmap.difficultyIndex = -1;
+                    }
+                    break;
+                default:
+                    // Assuming everything else is a description.
+                    m_CurrentBeatmap.beatmapDescription += m_BeatmapContents[i];
+                    break;
             }
         }
 
@@ -225,7 +248,70 @@ public class PatternManager : MonoBehaviour
 
         // Get all their names.
         foreach (string beatmapPath in m_BeatmapArray) {
-            m_BeatmapNameFileDict.Add(File.ReadAllLines(beatmapPath)[0], Path.GetFileName(beatmapPath));
+            string[] fileLines = File.ReadAllLines(beatmapPath);
+            m_BeatmapNameFileDict.Add(fileLines[0], Path.GetFileName(beatmapPath));
+
+            Beatmap currentlyReadingBeatmap = new Beatmap();
+
+            for (var i = 0; i < fileLines.Length; i++) {
+                switch (i) {
+                    case 0:
+                        // Line zero has to be the name.
+                        currentlyReadingBeatmap.beatmapName = fileLines[0].ToString();
+                        Debug.Log("Reading beatmap \"" + fileLines[0].ToString() + "\"");
+                        break;
+                    case 1:
+                        // Line one has to be the tempo. So we'll try and
+                        // change it into an int.
+                        int readTempo = -1;
+                        bool didParseProperly = int.TryParse(fileLines[i], out readTempo);
+
+                        // Make sure we parsed it properly, and that it's not
+                        // a negative number. Because that would be impossible.
+                        if (didParseProperly && readTempo > 0) {
+                            currentlyReadingBeatmap.tempo = readTempo;
+                            Debug.Log("Tempo is " + readTempo);
+                        } else {
+                            Debug.LogError("Failed to read tempo.");
+                        }
+                        break;
+                    case 2:
+                        // Line 2 has to be the name of the audio file to load.
+                        currentlyReadingBeatmap.beatmapAudioFile = fileLines[i];
+                        break;
+                    case 4:
+                        // Line 4 has to be the regular bullet placements.
+                        // Remove spaces from the string and then split it by commas.
+                        currentlyReadingBeatmap.beatmapNotes.AddRange(fileLines[i].Replace(" ", "").Split(','));
+                        break;
+                    case 5:
+                        // Line 5 has to be the laser definitions.
+                        currentlyReadingBeatmap.beatmapLasers.AddRange(fileLines[i].Replace(" ", "").Split(','));
+                        break;
+                    case 6:
+                        // Line 6 has to be attributions, separated by semicolons
+                        currentlyReadingBeatmap.beatmapAttribution.AddRange(fileLines[i].Split(';'));
+                        break;
+                    case 7:
+                        int difficultyIndex;
+                        bool didParseCorrectly = int.TryParse(fileLines[i], out difficultyIndex);
+                        if (didParseCorrectly && difficultyIndex <= 3 && difficultyIndex >= -1) {
+                            currentlyReadingBeatmap.difficultyIndex = difficultyIndex;
+                        } else {
+                            // If we couldn't parse the thing, then just assign it to -1. We'll deal with it later.
+                            currentlyReadingBeatmap.difficultyIndex = -1;
+                        }
+                        break;
+                    case 8:
+                        // Assuming line 8 is a description.
+                        currentlyReadingBeatmap.beatmapDescription += fileLines[i];
+                        break;
+                }
+            }
+
+            // Add it to a dict so we can work with it later.
+            beatmapObjectCollection.Add(fileLines[0], currentlyReadingBeatmap);
         }
+
     }
 }

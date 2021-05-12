@@ -44,6 +44,9 @@ public class PlayerGridlockController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // We only want the player to do things if we're playing.
+        if (m_GameManager.m_GameState != GameManager.GameState.Playing) return;
+
         if (m_PlayerLives <= 0) {
             // When health reaches zero, die.
             Die();

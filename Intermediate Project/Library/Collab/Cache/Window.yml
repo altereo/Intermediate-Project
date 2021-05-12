@@ -14,10 +14,36 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SimpleSelectedItems:
     m_Keys:
-    - Assets/beatmaps/mytime.gdlk
-    - Assets/beatmaps/mytime.gdlk.meta
+    - Assets/Font/Hana SDF.asset
+    - Assets/_Animators/CenteredButtons.controller
+    - Assets/_Animators/CenteredButtons.controller.meta
+    - Assets/_Animators/CircularList.controller
+    - Assets/_Animators/PlayButton.controller
+    - Assets/_Animators/SongInfoGroup.controller
+    - Assets/_Animators/TitleCard.controller
+    - Assets/_Animators/TitleCard.controller.meta
+    - Assets/_Animators/hideTitle.anim
+    - Assets/_Animators/hideTitle.anim.meta
+    - Assets/_Animators/mainTitleButtonAnimator.anim
+    - Assets/_Animators/mainTitleButtonAnimator.anim.meta
+    - Assets/_Animators/reversePlayButtonAnimator.anim
+    - Assets/_Animators/reversePlayButtonAnimator.anim.meta
+    - Assets/_Environment.meta
+    - Assets/_Environment/default.asset
+    - Assets/_Environment/default.asset.meta
+    - Assets/_Scenes/Main Game.unity
+    - Assets/_Scripts/BeatmapAudioLoader.cs
+    - Assets/_Scripts/SongSelectDisplay.cs
+    - Assets/_Scripts/UIDisplayController.cs
+    - Assets/_Sprites/backbuttton.png
+    - Assets/_Sprites/backbuttton.png.meta
+    - Packages/manifest.json
+    - Packages/packages-lock.json
+    - ProjectSettings/InputManager.asset
+    - ProjectSettings/ProjectSettings.asset
+    - ProjectSettings/TagManager.asset
     - 
-    m_Values: 010101
+    m_Values: 0000000000000000000000000000000000000000000000000000000000
   RevisionSummary: 
   ChangesSearchValue: 
   SelectedHistoryRevision: 

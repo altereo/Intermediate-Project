@@ -50,8 +50,6 @@ public class BeatmapAudioLoader : MonoBehaviour
         foreach (char c in Path.GetInvalidPathChars()) {
             filePath = filePath.Replace(c.ToString(), "");
         }
-        Debug.Log(filePath);
-        File.OpenRead(filePath);
         Debug.Log("Checking for \"" + filePath + "\"");
         if (File.Exists(filePath)) {
             Debug.Log("Good news... it exists!");

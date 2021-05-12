@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class SongSelectDisplay : MonoBehaviour
 {
@@ -17,8 +18,18 @@ public class SongSelectDisplay : MonoBehaviour
     public List<ListBox> m_ButtonListboxes = new List<ListBox>();
     public List<string> m_BeatmapNames = new List<string>();
 
+    public TextMeshProUGUI m_SongTitleText;
+    public TextMeshProUGUI m_SongDescriptionText;
+    public TextMeshProUGUI m_SongAttributionText;
+
+    private int previouslySelectedIndex = -1;
+
+    public bool hasAlreadyUpdated = false;
+
     public void UpdateSongs()
     {
+        if (hasAlreadyUpdated) return;
+
         // Store a copy for ease of use.
         m_BeatmapNameFileDict = m_PatternManager.m_BeatmapNameFileDict;
         foreach (string songName in m_BeatmapNameFileDict.Keys) {
@@ -37,6 +48,7 @@ public class SongSelectDisplay : MonoBehaviour
         m_ListPositionControl.listBoxes = m_ButtonListboxes.ToArray();
 
         m_ListPositionControl.enabled = true;
+        hasAlreadyUpdated = true;
     }
 
     public string GetSelectedSong()
@@ -48,9 +60,35 @@ public class SongSelectDisplay : MonoBehaviour
 
     public void PlaySong()
     {
-        // Tell the UI controller to hide any unecessary elements and switch the
-        // gamemanager's state.
-        m_UIDisplayController.SwitchToGameMode();
-        m_PatternManager.LoadBeatmap(m_BeatmapNameFileDict[GetSelectedSong()]);
+        // If we're not already playing,
+        if (m_UIDisplayController.m_gameManager.m_GameState == GameManager.GameState.Title) {
+            // Tell the UI controller to hide any unecessary elements and switch the
+            // gamemanager's state.
+            m_UIDisplayController.SwitchToGameMode();
+            m_UIDisplayController.m_gameManager.m_GameState = GameManager.GameState.Playing;
+            m_PatternManager.LoadBeatmap(m_BeatmapNameFileDict[GetSelectedSong()]);
+        }
+    }
+
+    private void LateUpdate()
+    {
+        // Update the current song data.
+
+        if (m_ListPositionControl.GetCenteredContentID() != previouslySelectedIndex) {
+            previouslySelectedIndex = m_ListPositionControl.GetCenteredContentID();
+            Beatmap selectedBeatmap = m_PatternManager.beatmapObjectCollection[GetSelectedSong()];
+            // Now we've got the beatmap's data and we're sure we've changed beatmaps, we can
+            // start updating things in the UI.
+            m_SongTitleText.text = selectedBeatmap.beatmapName;
+
+            if (selectedBeatmap.beatmapDescription != "" && selectedBeatmap.beatmapAttribution.Count > 0) {
+                m_SongDescriptionText.text = selectedBeatmap.beatmapDescription;
+                m_SongAttributionText.text = string.Join("\n", selectedBeatmap.beatmapAttribution.ToArray());
+            } else {
+                m_SongDescriptionText.text = "";
+                m_SongAttributionText.text = "";
+            }
+            
+        }
     }
 }
